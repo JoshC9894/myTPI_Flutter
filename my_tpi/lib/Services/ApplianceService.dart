@@ -1,18 +1,23 @@
 import 'dart:convert';
 import 'package:my_tpi/Models/Appliance.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_tpi/Models/CreateApplianceDTO.dart';
 
 abstract class IApplianceService {
-  Future<Appliance> createInspection(Appliance model);
+  Future<Appliance> createInspection(CreateApplianceDTO dto);
   Future<List<Appliance>> getInspections();
   Future<bool> deleteInspection(String id);
 }
 
 class ApplianceService implements IApplianceService {
-
-  Future<Appliance> createInspection(Appliance model) async {
-    final url = "https://us-central1-mytpi-dde27.cloudfunctions.net/api/appliance/inspection";
-    final response = await http.post(url, body: model.toJson());
+  Future<Appliance> createInspection(CreateApplianceDTO dto) async {
+    final url =
+        "https://us-central1-mytpi-dde27.cloudfunctions.net/api/appliance/inspection";
+    final headers = {'Content-Type': 'application/json'};
+    final body = dto.toJson();
+    final encoding = Encoding.getByName('utf-8');
+    final response =
+        await http.post(url, headers: headers, body: body, encoding: encoding);
     if (response.statusCode == 201) {
       return Appliance.fromJson(json.decode(response.body));
     }
@@ -20,7 +25,8 @@ class ApplianceService implements IApplianceService {
   }
 
   Future<List<Appliance>> getInspections() async {
-    final url = "https://us-central1-mytpi-dde27.cloudfunctions.net/api/appliance/inspection";
+    final url =
+        "https://us-central1-mytpi-dde27.cloudfunctions.net/api/appliance/inspection";
     final response = await http.get(url);
     if (response.statusCode == 200) {
       Iterable list = json.decode(response.body);
@@ -30,7 +36,8 @@ class ApplianceService implements IApplianceService {
   }
 
   Future<bool> deleteInspection(String id) async {
-    final url = "https://us-central1-mytpi-dde27.cloudfunctions.net/api/appliance/inspection/$id";
+    final url =
+        "https://us-central1-mytpi-dde27.cloudfunctions.net/api/appliance/inspection/$id";
     final response = await http.delete(url);
     if (response.statusCode == 200) {
       return true;

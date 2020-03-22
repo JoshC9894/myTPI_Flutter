@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:my_tpi/Models/Appliance.dart';
+import 'package:my_tpi/Models/CreateApplianceDTO.dart';
 import 'package:my_tpi/Services/ApplianceService.dart';
 
 abstract class IApplicationProvider extends ChangeNotifier {
-  Future<void> createNewInspection(String text);
+  Future<Appliance> createNewInspection(CreateApplianceDTO dto);
   Future<void> updateInspectionList();
   Future<void> deleteInspection(String id);
   List<Appliance> get inspections;
@@ -27,11 +28,11 @@ class ApplianceProvider extends IApplicationProvider {
   }
 
   @override
-  Future<void> createNewInspection(String text) async {
-    final model = Appliance(name: text, date: DateTime.now().toString());
-    final inspection = await _service.createInspection(model);
+  Future<Appliance> createNewInspection(CreateApplianceDTO dto) async {
+    final inspection = await _service.createInspection(dto);
     _inspections.add(inspection);
     notifyListeners();
+    return inspection;
   }
 
   @override

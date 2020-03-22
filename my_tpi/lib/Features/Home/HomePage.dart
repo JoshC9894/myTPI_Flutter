@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:my_tpi/Features/Add/AddPage.dart';
+import 'package:my_tpi/Features/SectionsList/SectionsList.dart';
+import 'package:my_tpi/Models/Appliance.dart';
 import 'package:my_tpi/Providers/ApplianceProvider.dart';
 import 'package:provider/provider.dart';
 
@@ -7,13 +10,46 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey.shade50,
-      appBar: AppBar(title: Text("Appliance Inspections")),
-      body: Center(
-          child: RefreshIndicator(
-              child: getBody(context), onRefresh: () => _refresh(context))),
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add), onPressed: () => _navigateToAdd(context)),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: Text(
+          "My Inspections",
+          style: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+            fontSize: 22.0,
+          ),
+        ),
+      ),
+      backgroundColor: Colors.blue.shade200,
+      body: SafeArea(
+        bottom: false,
+        child: Material(
+           color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(45.0),
+            topLeft: Radius.circular(45.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Center(
+              child: RefreshIndicator(
+                  child: getBody(context), onRefresh: () => _refresh(context)),
+            ),
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 24.0),
+        child: FloatingActionButton.extended(
+          backgroundColor: Colors.blue,
+          onPressed: () => _navigateToAdd(context),
+          label: Text("Start Inspection"),
+          icon: Icon(Icons.add),
+        ),
+      ),
     );
   }
 
@@ -22,7 +58,9 @@ class HomePage extends StatelessWidget {
     final list = applianceProvider.inspections;
 
     if (list == null) {
-      return CircularProgressIndicator();
+      return CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade300),
+      );
     }
     if (list.isEmpty) {
       // return Text("No Data!");
@@ -44,12 +82,15 @@ class HomePage extends StatelessWidget {
         itemBuilder: (context, index) {
           return InkWell(
             child: Card(
+              elevation: 0,
               child: ListTile(
-                title: Text("${list[index].name}"),
-                subtitle: Text("${list[index].date}"),
+                title: Text("${list[index].assetNumber}"),
+                subtitle: Text(
+                    "${DateFormat('EEE, dd MMM yy').format(list[index].date)}"),
               ),
             ),
             onLongPress: () => _deleteWithId(list[index].id, context),
+            onTap: () => _navigateToSections(list[index], context),
           );
         },
       ),
@@ -76,6 +117,13 @@ class HomePage extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => AddPage()),
+    );
+  }
+
+  void _navigateToSections(Appliance model, BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SectionsList(model)),
     );
   }
 }
